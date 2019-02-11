@@ -1,0 +1,67 @@
+Logging to /Users/dcalifornia/baselines/experiment_logs/experiment7
+------------------------------------
+| % time spent exploring  | 2      |
+| episodes                | 10     |
+| mean 100 episode reward | -246.2 |
+| steps                   | 1147   |
+------------------------------------
+------------------------------------
+| % time spent exploring  | 2      |
+| episodes                | 20     |
+| mean 100 episode reward | -146.6 |
+| steps                   | 1612   |
+------------------------------------
+-----------------------------------
+| % time spent exploring  | 2     |
+| episodes                | 30    |
+| mean 100 episode reward | -96.8 |
+| steps                   | 1632  |
+-----------------------------------
+-----------------------------------
+| % time spent exploring  | 2     |
+| episodes                | 40    |
+| mean 100 episode reward | -72.5 |
+| steps                   | 1652  |
+-----------------------------------
+-----------------------------------
+| % time spent exploring  | 2     |
+| episodes                | 50    |
+| mean 100 episode reward | -58.1 |
+| steps                   | 1673  |
+-----------------------------------
+-----------------------------------
+| % time spent exploring  | 2     |
+| episodes                | 60    |
+| mean 100 episode reward | -48.6 |
+| steps                   | 1693  |
+-----------------------------------
+-----------------------------------
+| % time spent exploring  | 2     |
+| episodes                | 70    |
+| mean 100 episode reward | -42.3 |
+| steps                   | 1741  |
+-----------------------------------
+-----------------------------------
+| % time spent exploring  | 2     |
+| episodes                | 80    |
+| mean 100 episode reward | -38.5 |
+| steps                   | 1818  |
+-----------------------------------
+-----------------------------------
+| % time spent exploring  | 2     |
+| episodes                | 90    |
+| mean 100 episode reward | -34.5 |
+| steps                   | 1850  |
+-----------------------------------
+-----------------------------------
+| % time spent exploring  | 2     |
+| episodes                | 100   |
+| mean 100 episode reward | -32.8 |
+| steps                   | 1957  |
+-----------------------------------
+-----------------------------------
+| % time spent exploring  | 2     |
+| episodes                | 110   |
+| mean 100 episode reward | -10.6 |
+| steps                   | 1987  |
+-----------------------------------
