@@ -36,6 +36,7 @@ def make_vec_env(env_id, env_type, num_env, seed,
     def make_thunk(rank):
         return lambda: make_env(
             env_id=env_id,
+            env_kwargs=env_kwargs,
             env_type=env_type,
             subrank = rank,
             seed=seed,
@@ -62,6 +63,7 @@ def make_env(env_id, env_type, subrank=0, seed=None, env_kwargs={}, reward_scale
         gamestate = gamestate or retro.State.DEFAULT
         env = retro_wrappers.make_retro(game=env_id, max_episode_steps=10000, use_restricted_actions=retro.Actions.DISCRETE, state=gamestate)
     else:
+        #print("env id and kwargs", env_id, env_kwargs)
         env = gym.make(env_id, **env_kwargs)
 
     if flatten_dict_observations and isinstance(env.observation_space, gym.spaces.Dict):
