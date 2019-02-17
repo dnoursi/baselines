@@ -3,6 +3,8 @@ Helpers for scripts like run_atari.py.
 """
 
 import os
+import json
+
 try:
     from mpi4py import MPI
 except ImportError:
@@ -19,6 +21,7 @@ from baselines.common.vec_env.dummy_vec_env import DummyVecEnv
 from baselines.common import retro_wrappers
 
 def make_vec_env(env_id, env_type, num_env, seed,
+                 env_kwargs={},
                  wrapper_kwargs=None,
                  start_index=0,
                  reward_scale=1.0,
@@ -49,7 +52,7 @@ def make_vec_env(env_id, env_type, num_env, seed,
         return DummyVecEnv([make_thunk(start_index)])
 
 
-def make_env(env_id, env_type, subrank=0, seed=None, reward_scale=1.0, gamestate=None, flatten_dict_observations=True, wrapper_kwargs=None):
+def make_env(env_id, env_type, subrank=0, seed=None, env_kwargs={}, reward_scale=1.0, gamestate=None, flatten_dict_observations=True, wrapper_kwargs=None):
     mpi_rank = MPI.COMM_WORLD.Get_rank() if MPI else 0
     wrapper_kwargs = wrapper_kwargs or {}
     if env_type == 'atari':
@@ -59,7 +62,7 @@ def make_env(env_id, env_type, subrank=0, seed=None, reward_scale=1.0, gamestate
         gamestate = gamestate or retro.State.DEFAULT
         env = retro_wrappers.make_retro(game=env_id, max_episode_steps=10000, use_restricted_actions=retro.Actions.DISCRETE, state=gamestate)
     else:
-        env = gym.make(env_id)
+        env = gym.make(env_id, **env_kwargs)
 
     if flatten_dict_observations and isinstance(env.observation_space, gym.spaces.Dict):
         keys = env.observation_space.spaces.keys()
@@ -134,6 +137,7 @@ def common_arg_parser():
     """
     parser = arg_parser()
     parser.add_argument('--env', help='environment ID', type=str, default='Reacher-v2')
+    parser.add_argument('--env_kwargs', help='JSON Dictionary of kwargs for gym.make("env", **env_kwargs)', type=json.loads, default='')
     parser.add_argument('--seed', help='RNG seed', type=int, default=None)
     parser.add_argument('--alg', help='Algorithm', type=str, default='ppo2')
     parser.add_argument('--num_timesteps', type=float, default=1e6),

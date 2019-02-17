@@ -56,6 +56,7 @@ _game_envs['retro'] = {
 def train(args, extra_args):
     env_type, env_id = get_env_type(args.env)
     print('env_type: {}'.format(env_type))
+    print('env_kwargs:', args.env_kwargs)
 
     total_timesteps = int(args.num_timesteps)
     seed = args.seed
@@ -113,7 +114,7 @@ def build_env(args):
        get_session(config=config)
 
        flatten_dict_observations = alg not in {'her'}
-       env = make_vec_env(env_id, env_type, args.num_env or 1, seed, reward_scale=args.reward_scale, flatten_dict_observations=flatten_dict_observations)
+       env = make_vec_env(env_id, env_type, args.num_env or 1, seed, env_kwargs=args.env_kwargs, reward_scale=args.reward_scale, flatten_dict_observations=flatten_dict_observations)
 
        if env_type == 'mujoco':
            env = VecNormalize(env)
