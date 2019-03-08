@@ -1,3 +1,5 @@
+experiment_logs/*
+
 *.swp
 *.pyc
 *.pkl
