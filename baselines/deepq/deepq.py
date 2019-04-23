@@ -19,6 +19,7 @@ from baselines.deepq.utils import ObservationInput
 from baselines.common.tf_util import get_session
 from baselines.deepq.models import build_q_func
 
+from collections import deque
 
 class ActWrapper(object):
     def __init__(self, act, act_params):
@@ -233,6 +234,23 @@ def learn(env,
                                  initial_p=1.0,
                                  final_p=exploration_final_eps)
 
+    # Initialize Checkpoint buffer
+    current_episode_memory = deque([], maxlen=10000)
+    current_episode_full_state = deque([], maxlen=10000)
+    #
+    proportion_lag = .3
+    assert 0 < proportion_lag < 1
+    #min_trajectory_len = 2 * int(1./args.proportion_lag)
+    checkpoint_buffer = []
+    #
+    def compute_score():
+        transition_scores = [tupl[2] for tupl in current_episode_memory]
+        # Max-sort
+        transition_scores.sort(reverse=True)
+        keep = int(len(transition_scores) * .10)
+        return np.mean(transition_scores[:keep])
+    bench_used=False
+
     # Initialize the parameters and copy them to the target network.
     U.initialize()
     update_target()
@@ -279,14 +297,66 @@ def learn(env,
             action = act(np.array(obs)[None], update_eps=update_eps, **kwargs)[0]
             env_action = action
             reset = False
+
+            old_cloned_state = env.env.unwrapped.clone_full_state()
+
             new_obs, rew, done, _ = env.step(env_action)
             # Store transition in the replay buffer.
             replay_buffer.add(obs, action, rew, new_obs, float(done))
             obs = new_obs
-
             episode_rewards[-1] += rew
+
+            current_episode_memory.append((obs, action, rew, new_obs, done))
+            current_episode_full_state.append(old_cloned_state)
+
             if done:
-                obs = env.reset()
+                checkpt_used = False
+                #if (not benchmark):
+                #    state = env.reset()
+                if np.random.random() < exploration.value(t/2):
+                    obs = env.reset()
+                else:
+                    #if args.bb_size != len(checkpoint_buffer):
+                    if 40 != len(checkpoint_buffer):
+                        obs = env.reset()
+                    else:
+                        checkpt_used = True
+                        bench_restore_idx = np.random.randint(len(checkpoint_buffer))
+                        rscore, restore_state, restore_cloned, rcount = checkpoint_buffer[bench_restore_idx]
+                        obs = restore_state
+                        env.env.unwrapped.restore_full_state(restore_cloned)
+
+                        #if rcount >= args.bb_freshness:
+                        if rcount >= 8:
+                            checkpoint_buffer.pop(bench_restore_idx)
+                        else:
+                            checkpoint_buffer[bench_restore_idx] = (rscore, restore_state, restore_cloned, rcount+1)
+
+                #if len(current_episode_memory) > min_trajectory_len:
+                if len(current_episode_memory) > 12:
+                    # Dont use this again
+                    #if bench_used and returnn < .1 * mean_returns:
+                    #    checkpoint_buffer.pop(bench_restore_idx)
+                    #idx = int(args.proportion_lag * reverse_scaled_eps(step/2) * len(current_episode_memory))
+                    idx = int(proportion_lag  * len(current_episode_memory))
+                    bench_replay = current_episode_memory[idx][0]
+                    bench_state = current_episode_full_state[idx]
+                    bench_score = compute_score()
+                    checkpoint_buffer.append( (bench_score, bench_replay, bench_state, 0) )
+                    # Handmade heap :/
+                    #while len(checkpoint_buffer) > args.bb_size:
+                    while len(checkpoint_buffer) > 40:
+                        min_score = checkpoint_buffer[0][0]
+                        mr_index = 0
+                        for i in range(len(checkpoint_buffer)):
+                            tupl = checkpoint_buffer[i]
+                            if tupl[0] < min_score:
+                                min_score = tupl[0]
+                                mr_index = i
+                        checkpoint_buffer.pop(i)
+                current_episode_memory.clear()
+                current_episode_full_state.clear()
+
                 episode_rewards.append(0.0)
                 reset = True
 

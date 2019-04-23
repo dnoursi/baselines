@@ -63,8 +63,12 @@ def make_env(env_id, env_type, subrank=0, seed=None, env_kwargs={}, reward_scale
         gamestate = gamestate or retro.State.DEFAULT
         env = retro_wrappers.make_retro(game=env_id, max_episode_steps=10000, use_restricted_actions=retro.Actions.DISCRETE, state=gamestate)
     else:
-        #print("env id and kwargs", env_id, env_kwargs)
         env = gym.make(env_id, **env_kwargs)
+        #print("env id and kwargs", env_id, env_kwargs)
+        #if env_kwargs:
+        #    env = gym.make(env_id, **env_kwargs)
+        #else:
+        #    env = gym.make(env_id)
 
     if flatten_dict_observations and isinstance(env.observation_space, gym.spaces.Dict):
         keys = env.observation_space.spaces.keys()
@@ -139,7 +143,7 @@ def common_arg_parser():
     """
     parser = arg_parser()
     parser.add_argument('--env', help='environment ID', type=str, default='Reacher-v2')
-    parser.add_argument('--env_kwargs', help='JSON Dictionary of kwargs for gym.make("env", **env_kwargs)', type=json.loads, default='')
+    parser.add_argument('--env_kwargs', help='JSON Dictionary of kwargs for gym.make("env", **env_kwargs)', type=json.loads, default={})
     parser.add_argument('--seed', help='RNG seed', type=int, default=None)
     parser.add_argument('--alg', help='Algorithm', type=str, default='ppo2')
     parser.add_argument('--num_timesteps', type=float, default=1e6),
