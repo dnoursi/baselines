@@ -42,15 +42,15 @@ class Monitor(Wrapper):
         return self.env.reset(**kwargs)
 
     def reset_state(self):
-        if not self.allow_early_resets and not self.needs_reset:
-            raise RuntimeError("Tried to reset an environment before done. If you want to allow early resets, wrap your env with Monitor(env, path, allow_early_resets=True)")
+        #if not self.allow_early_resets and not self.needs_reset:
+            #raise RuntimeError("Tried to reset an environment before done. If you want to allow early resets, wrap your env with Monitor(env, path, allow_early_resets=True)")
         self.rewards = []
         self.needs_reset = False
 
 
     def step(self, action):
-        if self.needs_reset:
-            raise RuntimeError("Tried to step environment that needs reset")
+        #if self.needs_reset:
+            #raise RuntimeError("Tried to step environment that needs reset")
         ob, rew, done, info = self.env.step(action)
         self.update(ob, rew, done, info)
         return (ob, rew, done, info)
